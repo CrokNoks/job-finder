@@ -1,0 +1,32 @@
+{
+  "name": "job-finder",
+  "version": "1.0.0",
+  "description": "Job search automation tool with Puppeteer and Firebase",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:functions": "cd apps/functions && npm run dev",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:web": "vercel --prod"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.3.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.6.0"
+  },
+  "packageManager": "npm@10.0.0"
+}
