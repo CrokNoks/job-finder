@@ -1,23 +1,16 @@
 {
   "functions": {
-    "predeploy": [
-      "npm --prefix \"$RESOURCE_DIR\" run build"
-    ],
-    "source": "apps/functions"
-  },
-  "hosting": {
-    "public": "apps/web/out",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+    "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"],
+    "source": "apps/functions",
+    "runtimeOptions": {
+      "memory": "1GB",
+      "maxInstances": 10
+    },
+    "env": {
+      "SUPABASE_URL": "https://qctsotskbbwtzavjpyus.supabase.co",
+      "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjdHNvdHNrYmJ3dHphdmpweXVzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzYzMjI4NSwiZXhwIjoyMDc5MjA4Mjg1fQ.aCkBNS6kD24DykF1UGrIb6H7tn7_-l2g-qXHL7_NSSw",
+      "FIREBASE_PROJECT_ID": "job-finder-166c8"
+    }
   },
   "emulators": {
     "functions": {

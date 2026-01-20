@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Clock, Trash2 } from 'lucide-react';
-import { SearchHistory } from '@shared/types';
+import { SearchHistory, getSearchHistory } from '@/lib/api';
 
 interface RecentSearchesProps {
   userId: string;
@@ -13,43 +13,20 @@ export function RecentSearches({ userId }: RecentSearchesProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch recent searches from API
-    const mockSearches: SearchHistory[] = [
-      {
-        id: '1',
-        userId,
-        query: {
-          sources: ['linkedin', 'indeed'],
-          poste: 'développeur react',
-          technologies: ['react', 'typescript'],
-          location: 'Paris',
-          excludeTerms: ['stage', 'alternance'],
-          remoteOnly: false,
-          salaryMin: 45000,
-        },
-        resultsCount: 12,
-        createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
-      },
-      {
-        id: '2',
-        userId,
-        query: {
-          sources: ['welcometothejungle'],
-          poste: 'designer UX',
-          technologies: ['figma', 'adobe xd'],
-          location: 'Lyon',
-          excludeTerms: ['CDI'],
-          remoteOnly: true,
-        },
-        resultsCount: 8,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-      },
-    ];
+    const fetchSearchHistory = async () => {
+      try {
+        const result = await getSearchHistory(userId);
+        setSearches(result || []);
+      } catch (error) {
+        console.error('Failed to fetch search history:', error);
+        // Fallback to empty array instead of mock data
+        setSearches([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setTimeout(() => {
-      setSearches(mockSearches);
-      setLoading(false);
-    }, 1000);
+    fetchSearchHistory();
   }, [userId]);
 
   const formatDate = (dateString: string) => {
@@ -68,7 +45,7 @@ export function RecentSearches({ userId }: RecentSearchesProps) {
   };
 
   const handleDelete = (searchId: string) => {
-    setSearches(searches.filter(s => s.id !== searchId));
+    setSearches(searches.filter((s) => s.id !== searchId));
     // TODO: Call API to delete search
   };
 
@@ -106,9 +83,7 @@ export function RecentSearches({ userId }: RecentSearchesProps) {
         >
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h3 className="font-medium text-gray-900 mb-1">
-                {search.query.poste}
-              </h3>
+              <h3 className="font-medium text-gray-900 mb-1">{search.query.poste}</h3>
               <div className="flex flex-wrap gap-2 mb-2">
                 {search.query.sources.map((source) => (
                   <span

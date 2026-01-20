@@ -6,8 +6,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Search, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { JobSearchQuery } from '@shared/types';
-import { searchJobs } from '@/lib/api';
+// Types temporarily defined here until @shared/types is properly configured
+interface JobSearchQuery {
+  sources: Array<'linkedin' | 'indeed' | 'welcometothejungle'>;
+  poste: string;
+  technologies: string[];
+  location?: string;
+  excludeTerms: string[];
+  remoteOnly: boolean;
+  salaryMin?: number;
+}
+import { searchJobs, saveSearchHistory } from '@/lib/api';
+import { auth } from '@/lib/firebase';
 
 const jobSearchSchema = z.object({
   sources: z.array(z.enum(['linkedin', 'indeed', 'welcometothejungle'])).min(1),
@@ -48,17 +58,34 @@ export function JobSearchForm() {
 
   const onSubmit = async (data: JobSearchFormData) => {
     setIsSearching(true);
-    
+
     try {
-      const results = await searchJobs(data);
-      toast.success(`Trouvé ${results.length} offres d'emploi!`);
-      
-      // TODO: Navigate to results page
-      console.log('Search results:', results);
+      const searchQuery: JobSearchQuery = {
+        ...data,
+        technologies: data.technologies || [],
+        excludeTerms: data.excludeTerms || [],
+      };
+
+      // Perform the search
+      const results = await searchJobs(searchQuery);
+
+      // Save search history if user is logged in
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          await saveSearchHistory(user.uid, searchQuery, results.length);
+        } catch (historyError) {
+          console.warn('Failed to save search history:', historyError);
+          // Don't fail the entire search if history saving fails
+        }
+      }
+
+      // Navigate to results page with search query
+      const queryString = encodeURIComponent(JSON.stringify(searchQuery));
+      window.location.href = `/jobs?q=${queryString}`;
     } catch (error) {
       toast.error('Erreur lors de la recherche. Veuillez réessayer.');
       console.error('Search error:', error);
-    } finally {
       setIsSearching(false);
     }
   };
@@ -94,9 +121,7 @@ export function JobSearchForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Sources */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Sources
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Sources</label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { value: 'linkedin', label: 'LinkedIn Jobs', color: 'bg-blue-500' },
@@ -107,10 +132,7 @@ export function JobSearchForm() {
                 color: 'bg-orange-500',
               },
             ].map((source) => (
-              <label
-                key={source.value}
-                className="flex items-center space-x-2 cursor-pointer"
-              >
+              <label key={source.value} className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
                   {...register('sources')}
@@ -128,18 +150,14 @@ export function JobSearchForm() {
 
         {/* Poste */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Poste recherché *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Poste recherché *</label>
           <input
             type="text"
             {...register('poste')}
             placeholder="ex: développeur react, designer UX..."
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
-          {errors.poste && (
-            <p className="mt-1 text-sm text-red-600">{errors.poste.message}</p>
-          )}
+          {errors.poste && <p className="mt-1 text-sm text-red-600">{errors.poste.message}</p>}
         </div>
 
         {/* Advanced Options Toggle */}
@@ -159,9 +177,7 @@ export function JobSearchForm() {
           <div className="space-y-6 pt-6 border-t border-gray-200">
             {/* Technologies */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Technologies
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Technologies</label>
               <div className="flex flex-wrap gap-2 mb-2">
                 {watchedTechnologies.map((tech) => (
                   <span
@@ -208,9 +224,7 @@ export function JobSearchForm() {
 
             {/* Location */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Localisation
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Localisation</label>
               <input
                 type="text"
                 {...register('location')}

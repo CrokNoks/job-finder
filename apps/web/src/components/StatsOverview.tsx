@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Briefcase, TrendingUp, Users, Clock } from 'lucide-react';
+import { Briefcase, TrendingUp, Users, Clock, Search } from 'lucide-react';
 
 interface Stats {
   totalSearches: number;

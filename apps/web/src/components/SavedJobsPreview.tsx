@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Briefcase, ExternalLink, Plus } from 'lucide-react';
-import { SavedJob } from '@shared/types';
+import { SavedJob } from '@/lib/api';
 
 interface SavedJobsPreviewProps {
   userId: string;
@@ -42,7 +42,8 @@ export function SavedJobsPreview({ userId }: SavedJobsPreviewProps) {
         id: '2',
         title: 'Full Stack Developer',
         company: 'StartupXYZ',
-        description: 'Rejoignez notre startup en pleine croissance en tant que développeur full stack...',
+        description:
+          'Rejoignez notre startup en pleine croissance en tant que développeur full stack...',
         url: 'https://example.com/job2',
         salaryRange: '45k€ - 60k€',
         salaryMin: 45000,
@@ -104,7 +105,7 @@ export function SavedJobsPreview({ userId }: SavedJobsPreviewProps) {
     const now = new Date();
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (diffInDays === 0) return 'Aujourd\'hui';
+    if (diffInDays === 0) return "Aujourd'hui";
     if (diffInDays === 1) return 'Hier';
     if (diffInDays < 7) return `Il y a ${diffInDays} jours`;
     return date.toLocaleDateString('fr-FR');
@@ -141,14 +142,9 @@ export function SavedJobsPreview({ userId }: SavedJobsPreviewProps) {
   return (
     <div className="space-y-4">
       {savedJobs.map((job) => (
-        <div
-          key={job.id}
-          className="job-card cursor-pointer hover:border-primary-300"
-        >
+        <div key={job.id} className="job-card cursor-pointer hover:border-primary-300">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-medium text-gray-900 line-clamp-1 flex-1">
-              {job.title}
-            </h3>
+            <h3 className="font-medium text-gray-900 line-clamp-1 flex-1">{job.title}</h3>
             <a
               href={job.url}
               target="_blank"
@@ -158,9 +154,9 @@ export function SavedJobsPreview({ userId }: SavedJobsPreviewProps) {
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
-          
+
           <p className="text-sm text-gray-600 mb-2">{job.company}</p>
-          
+
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2 text-xs text-gray-500">
               <span>{job.location}</span>
@@ -182,7 +178,9 @@ export function SavedJobsPreview({ userId }: SavedJobsPreviewProps) {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${getSourceColor(job.source)}`}>
+              <span
+                className={`inline-block px-2 py-1 text-xs font-medium rounded ${getSourceColor(job.source)}`}
+              >
                 {job.source}
               </span>
               {job.remote && (
@@ -191,9 +189,7 @@ export function SavedJobsPreview({ userId }: SavedJobsPreviewProps) {
                 </span>
               )}
             </div>
-            <span className="text-xs text-gray-400">
-              {formatDate(job.savedAt)}
-            </span>
+            <span className="text-xs text-gray-400">{formatDate(job.savedAt)}</span>
           </div>
 
           {/* Technologies */}
@@ -241,12 +237,10 @@ export function SavedJobsPreview({ userId }: SavedJobsPreviewProps) {
           )}
         </div>
       ))}
-      
+
       {/* View All Link */}
       <div className="text-center pt-2">
-        <button className="btn-primary text-sm">
-          Voir toutes les offres ({savedJobs.length})
-        </button>
+        <button className="btn-primary text-sm">Voir toutes les offres ({savedJobs.length})</button>
       </div>
     </div>
   );

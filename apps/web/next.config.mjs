@@ -1,14 +1,9 @@
 /** @type {import('next').NextConfig} */
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
-});
+const isDev = process.env.NODE_ENV === 'development';
+import withPWA from 'next-pwa';
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     domains: ['lh3.googleusercontent.com', 'avatars.githubusercontent.com'],
   },
@@ -19,4 +14,11 @@ const nextConfig = {
   },
 };
 
-module.exports = withPWA(nextConfig);
+export default isDev
+  ? nextConfig
+  : withPWA({
+      dest: 'public',
+      disable: isDev,
+      register: true,
+      skipWaiting: true,
+    })(nextConfig);

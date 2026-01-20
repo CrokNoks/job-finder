@@ -1,16 +1,44 @@
-import { redirect } from 'next/navigation';
-import { auth } from './lib/firebase';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { auth } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 import { JobSearchForm } from '@/components/JobSearchForm';
 import { RecentSearches } from '@/components/RecentSearches';
 import { StatsOverview } from '@/components/StatsOverview';
 import { SavedJobsPreview } from '@/components/SavedJobsPreview';
 
-export default async function HomePage() {
-  // Check if user is authenticated
-  const user = auth.currentUser;
-  
+export default function HomePage() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+        setLoading(false);
+      } else {
+        router.push('/login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
-    redirect('/login');
+    return null;
   }
 
   return (
@@ -40,16 +68,12 @@ export default async function HomePage() {
           {/* Left Column - Main Search */}
           <div className="lg:col-span-2 space-y-8">
             <section>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Nouvelle recherche
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Nouvelle recherche</h2>
               <JobSearchForm />
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Recherche précédentes
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Recherche précédentes</h2>
               <RecentSearches userId={user.uid} />
             </section>
           </div>
@@ -57,16 +81,12 @@ export default async function HomePage() {
           {/* Right Column - Sidebar */}
           <div className="space-y-8">
             <section>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Vos statistiques
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Vos statistiques</h2>
               <StatsOverview userId={user.uid} />
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Offres sauvegardées
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Offres sauvegardées</h2>
               <SavedJobsPreview userId={user.uid} />
             </section>
           </div>
