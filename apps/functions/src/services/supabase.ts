@@ -1,11 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 import { JobListing, SavedJob } from '../types';
 
-// Use environment variables from firebase.json or fallback to hardcoded
-const supabaseUrl = process.env.SUPABASE_URL || 'https://qctsotskbbwtzavjpyus.supabase.co';
-const supabaseServiceKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjdHNvdHNrYmJ3dHphdmpweXVzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzYzMjI4NSwiZXhwIjoyMDc5MjA4Mjg1fQ.aCkBNS6kD24DykF1UGrIb6H7tn7_-l2g-qXHL7_NSSw';
+// Use environment variables only - no hardcoded keys for security
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Validate required environment variables
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error(
+    'Missing required Supabase environment variables: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY'
+  );
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
