@@ -223,6 +223,50 @@ export const getSearchHistory = async (userId: string): Promise<SearchHistory[]>
   }
 };
 
+export interface UserStats {
+  totalSearches: number;
+  savedJobs: number;
+  applicationsSent: number;
+  interviews: number;
+  offers: number;
+  responseRate: number;
+  avgResultsPerSearch: number;
+  sources: Record<string, number>;
+  recentActivity: SavedJob[];
+}
+
+export const getUserStats = async (userId: string): Promise<UserStats> => {
+  try {
+    const isDev = process.env.NODE_ENV === 'development';
+    const baseUrl = isDev
+      ? 'http://127.0.0.1:5001/job-finder-166c8/us-central1'
+      : 'https://europe-west1-job-finder-166c8.cloudfunctions.net';
+
+    const response = await fetch(`${baseUrl}/getUserStatsHandler`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      return result.data;
+    } else {
+      throw new Error(result.error || 'Failed to get user stats');
+    }
+  } catch (error) {
+    console.error('Error getting user stats:', error);
+    throw error;
+  }
+};
+
 export interface SearchHistory {
   id: string;
   userId: string;

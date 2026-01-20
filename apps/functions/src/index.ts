@@ -105,6 +105,73 @@ export const getSearchHistoryHandler = functions.https.onCall(async (request: an
   }
 });
 
+export const getUserStatsHandler = functions.https.onCall(async (request: any) => {
+  const { userId } = request.data;
+  try {
+    // Get saved jobs
+    const { data: savedJobs, error: savedError } = await supabase
+      .from('saved_jobs')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (savedError) throw savedError;
+
+    // Get search history
+    const { data: searchHistory, error: historyError } = await supabase
+      .from('search_history')
+      .select('results_count')
+      .eq('user_id', userId);
+
+    if (historyError) throw historyError;
+
+    // Calculate statistics
+    const totalSearches = searchHistory?.length || 0;
+    const totalSavedJobs = savedJobs?.length || 0;
+    const applicationsSent = savedJobs?.filter((job) => job.status === 'envoyé').length || 0;
+    const interviews = savedJobs?.filter((job) => job.status === 'entretien').length || 0;
+    const offers = savedJobs?.filter((job) => job.status === 'accepté').length || 0;
+
+    // Calculate response rate
+    const totalApplications = applicationsSent;
+    const positiveResponses = interviews + offers;
+    const responseRate =
+      totalApplications > 0 ? Math.round((positiveResponses / totalApplications) * 100) : 0;
+
+    // Calculate most common sources
+    const sources =
+      savedJobs?.reduce(
+        (acc, job) => {
+          acc[job.source] = (acc[job.source] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      ) || {};
+
+    // Calculate average results per search
+    const totalResults =
+      searchHistory?.reduce((sum, search) => sum + (search.results_count || 0), 0) || 0;
+    const avgResultsPerSearch = totalSearches > 0 ? Math.round(totalResults / totalSearches) : 0;
+
+    return {
+      success: true,
+      data: {
+        totalSearches,
+        savedJobs: totalSavedJobs,
+        applicationsSent,
+        interviews,
+        offers,
+        responseRate,
+        avgResultsPerSearch,
+        sources,
+        recentActivity: savedJobs?.slice(0, 5) || [],
+      },
+    };
+  } catch (error) {
+    functions.logger.error('Failed to get user stats:', error);
+    throw new functions.https.HttpsError('internal', 'Failed to get user stats', error);
+  }
+});
+
 // V2 scheduled function - disabled for now
 // export const scheduledJobSearch = onSchedule(
 //   {

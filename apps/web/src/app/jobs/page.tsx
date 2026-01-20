@@ -6,6 +6,7 @@ import { JobListing } from '@/lib/api';
 import { searchJobs } from '@/lib/api';
 import { JobCard } from '@/components/JobCard';
 import { JobFilters } from '@/components/JobFilters';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Search, Briefcase, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -178,21 +179,23 @@ function JobsPageContent() {
 
 export default function JobsPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-gray-50 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <div className="inline-flex items-center space-x-2 text-primary-600">
-                <Search className="w-6 h-6 animate-pulse" />
-                <span className="text-lg font-medium">Loading...</span>
+    <ErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-gray-50 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center">
+                <div className="inline-flex items-center space-x-2 text-primary-600">
+                  <Search className="w-6 h-6 animate-pulse" />
+                  <span className="text-lg font-medium">Loading...</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      }
-    >
-      <JobsPageContent />
-    </Suspense>
+        }
+      >
+        <JobsPageContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
