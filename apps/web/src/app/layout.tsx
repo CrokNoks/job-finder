@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Job Finder - Recherche d\'emploi intelligente',
+  title: "Job Finder - Recherche d'emploi intelligente",
   description: 'Trouvez votre prochain job sur LinkedIn, Indeed et Welcome to the Jungle',
   keywords: ['emploi', 'recherche job', 'linkedin', 'indeed', 'technologies'],
   authors: [{ name: 'Job Finder' }],
@@ -26,21 +27,17 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     url: 'https://job-finder.vercel.app',
-    title: 'Job Finder - Recherche d\'emploi intelligente',
+    title: "Job Finder - Recherche d'emploi intelligente",
     description: 'Trouvez votre prochain job sur LinkedIn, Indeed et Welcome to the Jungle',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Job Finder - Recherche d\'emploi intelligente',
+    title: "Job Finder - Recherche d'emploi intelligente",
     description: 'Trouvez votre prochain job sur LinkedIn, Indeed et Welcome to the Jungle',
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
       <head>
@@ -56,7 +53,9 @@ export default function RootLayout({
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <ErrorBoundary>
+          <Providers>{children}</Providers>
+        </ErrorBoundary>
       </body>
     </html>
   );
