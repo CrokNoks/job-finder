@@ -21,15 +21,15 @@ jest.mock('firebase-admin', () => ({
   })),
   functions: {
     https: {
-      HttpsError: class extends Error {
-        constructor(code: string, message: string) {
-          super(message)
-          this.code = code
+      HttpsError: class HttpsError extends Error {
+        constructor(code, message) {
+          super(message);
+          this.code = code;
         }
       },
     },
   },
-}))
+}));
 
 // Mock Supabase
 jest.mock('@supabase/supabase-js', () => ({
@@ -47,13 +47,13 @@ jest.mock('@supabase/supabase-js', () => ({
       })),
     })),
   })),
-}))
+}));
 
 // Mock Axios
 jest.mock('axios', () => ({
   get: jest.fn(() => Promise.resolve({ data: '' })),
   post: jest.fn(() => Promise.resolve({ data: {} })),
-}))
+}));
 
 // Mock Cheerio
 jest.mock('cheerio', () => ({
@@ -65,4 +65,4 @@ jest.mock('cheerio', () => ({
     })),
     text: jest.fn(() => ''),
   })),
-}))
+}));
